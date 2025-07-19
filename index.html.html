@@ -1,0 +1,198 @@
+<!-- index.html (Main Page) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>College Resource Portal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #001f3f;
+      color: white;
+      padding: 1em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header img {
+      height: 50px;
+    }
+    .container {
+      padding: 20px;
+    }
+    .section {
+      margin-bottom: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    label, select {
+      display: block;
+      margin-top: 10px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      margin: 5px 0;
+    }
+    .admin-link {
+      text-align: right;
+      margin-bottom: 15px;
+    }
+    .login-links a {
+      margin-left: 15px;
+    }
+    #chatbot {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 8px;
+      width: 250px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #chat-output {
+      height: 100px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      padding: 5px;
+    }
+    #chat-input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>College Resource Portal</h1>
+    <img id="logo" src="https://upload.wikimedia.org/wikipedia/en/0/03/Sapthagiri_NPS_University_Logo.png" alt="College Logo">
+  </header>
+
+  <div class="container">
+    <div class="admin-link login-links">
+      <a href="admin-login.html">🔒 Admin Login</a>
+      <a href="student-login.html">🎓 Student Login</a>
+    </div>
+
+    <div class="section">
+      <label for="semester">Select Semester:</label>
+      <select id="semester">
+        <option value="1">1st Semester (Choose P/E Cycle)</option>
+        <option value="2">2nd Semester (Choose P/E Cycle)</option>
+        <option value="3">3rd Semester</option>
+        <option value="4">4th Semester</option>
+        <option value="5">5th Semester</option>
+        <option value="6">6th Semester</option>
+        <option value="7">7th Semester</option>
+        <option value="8">8th Semester</option>
+      </select>
+
+      <div id="cycleDiv" style="display:none;">
+        <label for="cycle">Select Cycle:</label>
+        <select id="cycle">
+          <option value="p">P Cycle</option>
+          <option value="e">E Cycle</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Uploaded Resources</h3>
+      <ul id="resourceList"></ul>
+    </div>
+  </div>
+
+  <!-- Chatbot UI -->
+  <div id="chatbot">
+    <div id="chat-output"></div>
+    <input type="text" id="chat-input" placeholder="Ask a question...">
+  </div>
+
+  <script>
+    const semesterSelect = document.getElementById('semester');
+    const cycleDiv = document.getElementById('cycleDiv');
+    const cycleSelect = document.getElementById('cycle');
+    const chatInput = document.getElementById('chat-input');
+    const chatOutput = document.getElementById('chat-output');
+
+    function updateCycleVisibility() {
+      const sem = semesterSelect.value;
+      cycleDiv.style.display = (sem === '1' || sem === '2') ? 'block' : 'none';
+    }
+
+    function loadResources() {
+      const sem = semesterSelect.value;
+      const cycle = (sem === '1' || sem === '2') ? cycleSelect.value : '';
+      const key = `${sem}-${cycle}`;
+      const resourceList = document.getElementById('resourceList');
+      const resources = JSON.parse(localStorage.getItem(key)) || [];
+
+      resourceList.innerHTML = '';
+      resources.forEach(res => {
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        link.textContent = `${res.subject}: ${res.fileName}`;
+        link.href = '#'; // Simulated link
+        link.download = res.fileName;
+        li.appendChild(link);
+        resourceList.appendChild(li);
+      });
+    }
+
+    semesterSelect.addEventListener('change', () => {
+      updateCycleVisibility();
+      loadResources();
+    });
+
+    cycleSelect.addEventListener('change', loadResources);
+
+    window.onload = () => {
+      updateCycleVisibility();
+      loadResources();
+    };
+
+    // Basic Chatbot Logic
+    chatInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const question = chatInput.value.trim();
+        if (!question) return;
+
+        const response = generateBotResponse(question);
+        chatOutput.innerHTML += `<div><strong>You:</strong> ${question}</div>`;
+        chatOutput.innerHTML += `<div><strong>Bot:</strong> ${response}</div>`;
+        chatInput.value = '';
+        chatOutput.scrollTop = chatOutput.scrollHeight;
+      }
+    });
+
+    function generateBotResponse(input) {
+      input = input.toLowerCase();
+      if (input.includes("how to download") || input.includes("download")) {
+        return "Select your semester and click the resource name to download it.";
+      }
+      if (input.includes("admin")) {
+        return "I'm sorry, I can't provide information about admins.";
+      }
+      if (input.includes("cycle")) {
+        return "P Cycle and E Cycle are used in 1st and 2nd semesters to differentiate streams.";
+      }
+      if (input.includes("semester")) {
+        return "Choose your semester from the dropdown to view resources.";
+      }
+      return "Sorry, I didn't understand. Try asking about downloading or selecting semester.";
+    }
+  </script>
+</body>
+</html>
