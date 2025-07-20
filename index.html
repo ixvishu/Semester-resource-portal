@@ -72,6 +72,9 @@
       width: 100%;
       box-sizing: border-box;
     }
+    .notes-section {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -114,12 +117,12 @@
     </div>
   </div>
 
-   <div class="section">
-      <h3>📘 2nd Semester – Python (Module 1)</h3>
-      <ul>
-        <li><a href="https://github.com/user-attachments/files/21333193/Module.-1.Introduction.to.python.pdf" target="_blank">Python Module 1 Notes (PDF)</a></li>
-      </ul>
-    </div>
+  <!-- Notes Sections: Only visible for 2nd Semester, P Cycle -->
+  <div id="notes-2-p" class="notes-section section">
+    <h3>📘 2nd Semester – Python (Module 1)</h3>
+    <ul>
+      <li><a href="https://github.com/user-attachments/files/21333193/Module.-1.Introduction.to.python.pdf" target="_blank">Python Module 1 Notes (PDF)</a></li>
+    </ul>
   </div>
 
   <!-- Chatbot UI -->
@@ -147,12 +150,6 @@
       const resourceList = document.getElementById('resourceList');
       const resources = JSON.parse(localStorage.getItem(key)) || [];
 
-       if (sem === '2' && cycle === 'p-cycle') {
-        pythonNotes.style.display = 'block';
-      } else {
-        pythonNotes.style.display = 'none';
-      }
-
       resourceList.innerHTML = '';
       resources.forEach(res => {
         const li = document.createElement('li');
@@ -165,16 +162,39 @@
       });
     }
 
+    // Show only the relevant notes section
+    function showRelevantNotes() {
+      // Hide all notes sections
+      document.querySelectorAll('.notes-section').forEach(div => div.style.display = 'none');
+
+      const sem = semesterSelect.value;
+      let cycle = '';
+      if (sem === '1' || sem === '2') {
+        cycle = cycleSelect.value;
+      }
+
+      // Show notes for 2nd semester, P cycle
+      if (sem === '2' && cycle === 'p') {
+        document.getElementById('notes-2-p').style.display = 'block';
+      }
+      // Add more conditions here for other notes sections as needed
+    }
+
     semesterSelect.addEventListener('change', () => {
       updateCycleVisibility();
       loadResources();
+      showRelevantNotes();
     });
 
-    cycleSelect.addEventListener('change', loadResources);
+    cycleSelect.addEventListener('change', () => {
+      loadResources();
+      showRelevantNotes();
+    });
 
     window.onload = () => {
       updateCycleVisibility();
       loadResources();
+      showRelevantNotes();
     };
 
     // Basic Chatbot Logic
